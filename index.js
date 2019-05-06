@@ -9,7 +9,17 @@ Cesium.Ion.defaultAccessToken =
 
 // Cesium.Camera.DEFAULT_VIEW_FACTOR = 0;
 // Cesium.Camera.DEFAULT_VIEW_RECTANGLE = rectangle;
-const viewer = new Cesium.Viewer('cesiumContainer');
+// Create a camera looking down the negative z-axis, positioned at the origin,
+// with a field of view of 60 degrees, and 1:1 aspect ratio.
 
-let center = Cesium.Cartesian3.fromDegrees(17.605, 46.985);
-viewer.camera.lookAt(center, new Cesium.Cartesian3(0.0, 0.0, 2000));
+
+// const viewer = new Cesium.Viewer('cesiumContainer');
+
+
+// let center = Cesium.Cartesian3.fromDegrees(17.605, 46.985);
+// viewer.camera.lookAt(center, new Cesium.Cartesian3(0.0, 0.0, 2000));
+var viewer = new Cesium.Viewer('cesiumContainer');
+var center = Cesium.Cartesian3.fromDegrees(17.605, 46.985);
+var cameraPos = new Cesium.Cartesian3(0.0, 0.0, 2000);
+viewer.camera.lookAt(center, cameraPos);
+viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
