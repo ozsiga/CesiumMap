@@ -1,0 +1,23 @@
+{
+  "name": "cesiummap",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "cesium": "^1.57.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ozsiga/CesiumMap.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ozsiga/CesiumMap/issues"
+  },
+  "homepage": "https://github.com/ozsiga/CesiumMap#readme"
+}
