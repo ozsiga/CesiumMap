@@ -5,15 +5,15 @@ var viewer = new Cesium.Viewer('cesiumContainer');
 const center = Cesium.Cartesian3.fromDegrees(17.605, 46.985, 0.0);
 const cameraPos = new Cesium.Cartesian3(0.0, 0.0, 2000);
 viewer.camera.lookAt(center, cameraPos);
-//viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
+viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
 
-viewer.entities.add({
-    position: Cesium.Cartesian3.fromDegrees(17.603, 46.985, 100.0),
-    point: {
-        color: Cesium.Color.RED,
-        pixelSize: 20
-    }
-})
+// viewer.entities.add({
+//     position: Cesium.Cartesian3.fromDegrees(17.603, 46.985, 100.0),
+//     point: {
+//         color: Cesium.Color.RED,
+//         pixelSize: 20
+//     }
+// })
 
 var scene = viewer.scene;
 
@@ -32,15 +32,57 @@ function getMarkerData() {
     fetch(url)
         .then(res => res.json())
         .then(data => {
-            makeMarkerandLineSvg(data);
-            console.log(data);
+            data.forEach(function (e) {
+                makeMarkerandLineSvg(e)
+                makeMarker(e);
+                console.log(e);
+            });
         })
         .catch(err => console.log(err));
 }
 
+function getSensorData() {
+    const url = "http://192.168.8.149:8080/UAVFusionPOC/rest/fusion/sensor/all"; //url of service
+    fetch(url)
+        .then(res => res.json())
+        .then(data => {
+            data.sensors.forEach(function (e) {
+                makeSensor(e);
+                console.log(e);
+            });
+        })
+        .catch(err => console.log(err));
+}
+
+function makeMarker(data) {
+    let lat = data.domain.coordinate.latitude
+    let lon = data.domain.coordinate.longitude
+    let height = data.domain.height
+    viewer.entities.add({
+        position: Cesium.Cartesian3.fromDegrees(lon, lat, height),
+        point: {
+            color: Cesium.Color.RED,
+            pixelSize: 20
+        }
+    })
+}
+
+function makeSensor(data) {
+    let lat = data.domain.coordinate.latitude
+    let lon = data.domain.coordinate.longitude
+    viewer.entities.add({
+        position: Cesium.Cartesian3.fromDegrees(lon, lat, 0.0),
+        point: {
+            color: Cesium.Color.BLUE,
+            pixelSize: 20
+        }
+    })
+}
+
+
 function makeMarkerandLineSvg(input) {
     let droneSvgContainer = d3
-        .select(".cesium-widget")
+        .select("#svg")
         .selectAll("svg.droneSvg")
         .data(input, d => {
             return d.id;
@@ -72,10 +114,15 @@ function makeMarkerandLineSvg(input) {
 }
 //getMarkerData()
 
-var circle = new Cesium.CircleGeometry({
-    center: Cesium.Cartesian3.fromDegrees(17.60571, 46.98657),
-    radius: 100000.0
-});
-var geometry = Cesium.CircleGeometry.createGeometry(circle);
+// var circle = new Cesium.CircleGeometry({
+//     center: Cesium.Cartesian3.fromDegrees(17.60571, 46.98657),
+//     radius: 100000.0
+// });
+// var geometry = Cesium.CircleGeometry.createGeometry(circle);
 // scene.primitives.add(geometry)
-debugger
+// debugger
+setInterval(() => {
+
+    //getMarkerData();
+}, 100);
+getSensorData();
