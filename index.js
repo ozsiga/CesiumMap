@@ -10,9 +10,11 @@ viewer.camera.lookAt(center, cameraPos);
 var scene = viewer.scene;
 
 var modelMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(
-    Cesium.Cartesian3.fromDegrees(17.605, 46.986, 0.0));
+    Cesium.Cartesian3.fromDegrees(17.6058, 46.9866, 0.0));
 var model = scene.primitives.add(Cesium.Model.fromGltf({
-    url: './assets/modified_object.glb',
+    url: './assets/tali3.glb',
     modelMatrix: modelMatrix,
-    scale: 2.8
+    scale: 65.5,
+
 }));
+console.log(model);
