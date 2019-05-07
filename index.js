@@ -7,6 +7,14 @@ const cameraPos = new Cesium.Cartesian3(0.0, 0.0, 2000);
 viewer.camera.lookAt(center, cameraPos);
 //viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
 
+viewer.entities.add({
+    position: Cesium.Cartesian3.fromDegrees(17.603, 46.985, 100.0),
+    point: {
+        color: Cesium.Color.RED,
+        pixelSize: 20
+    }
+})
+
 var scene = viewer.scene;
 
 var modelMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(
