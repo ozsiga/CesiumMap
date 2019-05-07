@@ -18,3 +18,56 @@ var model = scene.primitives.add(Cesium.Model.fromGltf({
 
 }));
 console.log(model);
+
+function getMarkerData() {
+    const url = "http://192.168.8.149:8080/UAVFusionPOC/rest/fusion/detection/all"; //url of service
+    fetch(url)
+        .then(res => res.json())
+        .then(data => {
+            makeMarkerandLineSvg(data);
+            console.log(data);
+        })
+        .catch(err => console.log(err));
+}
+
+function makeMarkerandLineSvg(input) {
+    let droneSvgContainer = d3
+        .select(".cesium-widget")
+        .selectAll("svg.droneSvg")
+        .data(input, d => {
+            return d.id;
+        });
+    droneSvgContainer.exit().remove();
+    let newSvg = droneSvgContainer.enter().append("svg");
+    newSvg.attr("class", "droneSvg");
+    newSvg.attr("customId", function (d) {
+        return d.id;
+    });
+    newSvg.style("width", 50);
+    newSvg.style("height", 50);
+    newSvg.style("z-index", 1000);
+    droneSvgContainer = newSvg.merge(droneSvgContainer);
+    let newCircleGroup = newSvg
+        .append("g")
+        .attr("class", "circle")
+        .attr("width", 50)
+        .attr("height", 50);
+    newCircleGroup
+        .append("circle")
+        .attr("cx", 25)
+        .attr("cy", 25)
+        .attr("r", 6)
+        .attr("opacity", 1)
+        .attr("stroke", "white")
+        .attr("stroke-width", "1")
+        .style("z-index", 1000);
+}
+//getMarkerData()
+
+var circle = new Cesium.CircleGeometry({
+    center: Cesium.Cartesian3.fromDegrees(17.60571, 46.98657),
+    radius: 100000.0
+});
+var geometry = Cesium.CircleGeometry.createGeometry(circle);
+// scene.primitives.add(geometry)
+debugger
