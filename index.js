@@ -1,7 +1,7 @@
 Cesium.Ion.defaultAccessToken =
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmYjFmZWU0Ny03NDE4LTQyZDYtYTY4YS0zMTM2MjMxMTU1MTgiLCJpZCI6MTA1NzYsInNjb3BlcyI6WyJhc2wiLCJhc3IiLCJhc3ciLCJnYyJdLCJpYXQiOjE1NTY4ODMyNzZ9.aAZSMZ3_AQ_aTxUKC87VbAlJw_orNRMoUDZTVk-uRSE';
 var viewer = new Cesium.Viewer('cesiumContainer');
-const center = Cesium.Cartesian3.fromDegrees(19.605, 47.585, 0.0);
+const center = Cesium.Cartesian3.fromDegrees(17.600, 46.985, 40000.0);
 const cameraPos = new Cesium.Cartesian3(0.0, 0.0, 2000);
 viewer.camera.lookAt(center, cameraPos);
 viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
@@ -21,9 +21,8 @@ function getMarkerData() {
     fetch(url)
         .then(res => res.json())
         .then(data => {
-            console.log(data);
-            data.forEach(function (e) {
-                makeMarker(e);
+            data.forEach((drone) => {
+                makeMarker(drone);
             });
         })
         .catch(err => console.log(err));
@@ -34,8 +33,8 @@ function getSensorData() {
     fetch(url)
         .then(res => res.json())
         .then(data => {
-            data.sensors.forEach(function (e) {
-                makeSensor(e);
+            data.sensors.forEach((sensor) => {
+                makeSensor(sensor);
             });
         })
         .catch(err => console.log(err));
@@ -57,17 +56,17 @@ function makeMarker(data) {
         // if (viewer.entities._entities._array[i]._id == data.id) {
         //     viewer.entities.remove(viewer.entities._entities._array[i])
         // }
-        console.log(viewer.entities);
+        // console.log(viewer.entities);
     }
 }
 //console.log(viewer.entities);
-//console.log(viewer.entities._entities._array);
+console.log(viewer.entities._entities._array);
 
 function makeSensor(data) {
     let lat = data.domain.coordinate.latitude;
     let lon = data.domain.coordinate.longitude;
     viewer.entities.add({
-        position: Cesium.Cartesian3.fromDegrees(lon, lat, 0.0),
+        position: Cesium.Cartesian3.fromDegrees(lon, lat, 80.0),
         point: {
             color: Cesium.Color.BLUE,
             pixelSize: 20
@@ -76,7 +75,6 @@ function makeSensor(data) {
 }
 
 setInterval(() => {
-
     getMarkerData();
-}, 1000);
+}, 500);
 getSensorData();
