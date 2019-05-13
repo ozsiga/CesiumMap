@@ -1,8 +1,7 @@
 Cesium.Ion.defaultAccessToken =
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmYjFmZWU0Ny03NDE4LTQyZDYtYTY4YS0zMTM2MjMxMTU1MTgiLCJpZCI6MTA1NzYsInNjb3BlcyI6WyJhc2wiLCJhc3IiLCJhc3ciLCJnYyJdLCJpYXQiOjE1NTY4ODMyNzZ9.aAZSMZ3_AQ_aTxUKC87VbAlJw_orNRMoUDZTVk-uRSE';
-
 var viewer = new Cesium.Viewer('cesiumContainer');
-const center = Cesium.Cartesian3.fromDegrees(17.605, 46.985, 0.0);
+const center = Cesium.Cartesian3.fromDegrees(19.605, 47.585, 0.0);
 const cameraPos = new Cesium.Cartesian3(0.0, 0.0, 2000);
 viewer.camera.lookAt(center, cameraPos);
 viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
@@ -15,7 +14,6 @@ var model = scene.primitives.add(Cesium.Model.fromGltf({
     url: './assets/tali3.glb',
     modelMatrix: modelMatrix,
     scale: 63.3,
-
 }));
 
 function getMarkerData() {
@@ -51,10 +49,19 @@ function makeMarker(data) {
         position: Cesium.Cartesian3.fromDegrees(lon, lat, height),
         point: {
             color: Cesium.Color.RED,
-            pixelSize: 20
-        }
+            pixelSize: 10
+        },
     })
+    for (let i = 0; i < viewer.entities._entities._array.length; i++) {
+        viewer.entities._entities._array[i]._id = data.id
+        // if (viewer.entities._entities._array[i]._id == data.id) {
+        //     viewer.entities.remove(viewer.entities._entities._array[i])
+        // }
+        console.log(viewer.entities);
+    }
 }
+//console.log(viewer.entities);
+//console.log(viewer.entities._entities._array);
 
 function makeSensor(data) {
     let lat = data.domain.coordinate.latitude;
@@ -70,6 +77,6 @@ function makeSensor(data) {
 
 setInterval(() => {
 
-}, 100);
-getMarkerData();
+    getMarkerData();
+}, 1000);
 getSensorData();
