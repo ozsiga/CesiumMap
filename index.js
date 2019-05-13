@@ -7,14 +7,6 @@ const cameraPos = new Cesium.Cartesian3(0.0, 0.0, 2000);
 viewer.camera.lookAt(center, cameraPos);
 viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
 
-// viewer.entities.add({
-//     position: Cesium.Cartesian3.fromDegrees(17.603, 46.985, 100.0),
-//     point: {
-//         color: Cesium.Color.RED,
-//         pixelSize: 20
-//     }
-// })
-
 var scene = viewer.scene;
 
 var modelMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(
@@ -25,17 +17,15 @@ var model = scene.primitives.add(Cesium.Model.fromGltf({
     scale: 63.3,
 
 }));
-console.log(model);
 
 function getMarkerData() {
     const url = "http://192.168.8.149:8080/UAVFusionPOC/rest/fusion/detection/all"; //url of service
     fetch(url)
         .then(res => res.json())
         .then(data => {
+            console.log(data);
             data.forEach(function (e) {
-                makeMarkerandLineSvg(e)
                 makeMarker(e);
-                console.log(e);
             });
         })
         .catch(err => console.log(err));
@@ -48,16 +38,15 @@ function getSensorData() {
         .then(data => {
             data.sensors.forEach(function (e) {
                 makeSensor(e);
-                console.log(e);
             });
         })
         .catch(err => console.log(err));
 }
 
 function makeMarker(data) {
-    let lat = data.domain.coordinate.latitude
-    let lon = data.domain.coordinate.longitude
-    let height = data.domain.height
+    let lat = data.domain.coordinate.latitude;
+    let lon = data.domain.coordinate.longitude;
+    let height = data.domain.height;
     viewer.entities.add({
         position: Cesium.Cartesian3.fromDegrees(lon, lat, height),
         point: {
@@ -68,8 +57,8 @@ function makeMarker(data) {
 }
 
 function makeSensor(data) {
-    let lat = data.domain.coordinate.latitude
-    let lon = data.domain.coordinate.longitude
+    let lat = data.domain.coordinate.latitude;
+    let lon = data.domain.coordinate.longitude;
     viewer.entities.add({
         position: Cesium.Cartesian3.fromDegrees(lon, lat, 0.0),
         point: {
@@ -79,50 +68,8 @@ function makeSensor(data) {
     })
 }
 
-
-function makeMarkerandLineSvg(input) {
-    let droneSvgContainer = d3
-        .select("#svg")
-        .selectAll("svg.droneSvg")
-        .data(input, d => {
-            return d.id;
-        });
-    droneSvgContainer.exit().remove();
-    let newSvg = droneSvgContainer.enter().append("svg");
-    newSvg.attr("class", "droneSvg");
-    newSvg.attr("customId", function (d) {
-        return d.id;
-    });
-    newSvg.style("width", 50);
-    newSvg.style("height", 50);
-    newSvg.style("z-index", 1000);
-    droneSvgContainer = newSvg.merge(droneSvgContainer);
-    let newCircleGroup = newSvg
-        .append("g")
-        .attr("class", "circle")
-        .attr("width", 50)
-        .attr("height", 50);
-    newCircleGroup
-        .append("circle")
-        .attr("cx", 25)
-        .attr("cy", 25)
-        .attr("r", 6)
-        .attr("opacity", 1)
-        .attr("stroke", "white")
-        .attr("stroke-width", "1")
-        .style("z-index", 1000);
-}
-//getMarkerData()
-
-// var circle = new Cesium.CircleGeometry({
-//     center: Cesium.Cartesian3.fromDegrees(17.60571, 46.98657),
-//     radius: 100000.0
-// });
-// var geometry = Cesium.CircleGeometry.createGeometry(circle);
-// scene.primitives.add(geometry)
-// debugger
 setInterval(() => {
 
-    //getMarkerData();
 }, 100);
+getMarkerData();
 getSensorData();
