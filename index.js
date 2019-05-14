@@ -1,29 +1,31 @@
 Cesium.Ion.defaultAccessToken =
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmYjFmZWU0Ny03NDE4LTQyZDYtYTY4YS0zMTM2MjMxMTU1MTgiLCJpZCI6MTA1NzYsInNjb3BlcyI6WyJhc2wiLCJhc3IiLCJhc3ciLCJnYyJdLCJpYXQiOjE1NTY4ODMyNzZ9.aAZSMZ3_AQ_aTxUKC87VbAlJw_orNRMoUDZTVk-uRSE';
-var viewer = new Cesium.Viewer('cesiumContainer');
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmYjFmZWU0Ny03NDE4LTQyZDYtYTY4YS0zMTM2MjMxMTU1MTgiLCJpZCI6MTA1NzYsInNjb3BlcyI6WyJhc2wiLCJhc3IiLCJhc3ciLCJnYyJdLCJpYXQiOjE1NTY4ODMyNzZ9.aAZSMZ3_AQ_aTxUKC87VbAlJw_orNRMoUDZTVk-uRSE";
+let viewer = new Cesium.Viewer("cesiumContainer");
 const center = Cesium.Cartesian3.fromDegrees(17.600, 46.985, 40000.0);
 const cameraPos = new Cesium.Cartesian3(0.0, 0.0, 2000);
 viewer.camera.lookAt(center, cameraPos);
 viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
 
-// var scene = viewer.scene;
+let scene = viewer.scene;
 
-// var modelMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(
-//     Cesium.Cartesian3.fromDegrees(17.60571, 46.98657, 0.0));
-// var model = scene.primitives.add(Cesium.Model.fromGltf({
-//     url: './assets/tali3.glb',
-//     modelMatrix: modelMatrix,
-//     scale: 63.3,
-// }));
+let modelMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(
+    Cesium.Cartesian3.fromDegrees(17.60571, 46.98657, 0.0));
+let model = scene.primitives.add(Cesium.Model.fromGltf({
+    url: './assets/tali3.glb',
+    modelMatrix: modelMatrix,
+    scale: 63.3,
+}));
 
 function getMarkerData() {
     const url = "http://192.168.8.149:8080/UAVFusionPOC/rest/fusion/detection/all"; //url of service
     fetch(url)
         .then(res => res.json())
         .then(data => {
-            data.forEach((drone) => {
-                makeMarker(drone);
-            });
+            removeMarker(data);
+            for (let i = 0; i < data.length; i++) {
+                makeMarker(data[i]);
+            }
+            data.forEach(drone => makeMarker(drone));
         })
         .catch(err => console.log(err));
 }
@@ -33,66 +35,73 @@ function getSensorData() {
     fetch(url)
         .then(res => res.json())
         .then(data => {
-            data.sensors.forEach((sensor) => {
-                makeSensor(sensor);
-            });
+            data.sensors.forEach(sensor => makeSensor(sensor));
         })
         .catch(err => console.log(err));
 }
+viewer.entities.getById();
 
 function makeMarker(data) {
     let lat = data.domain.coordinate.latitude;
     let lon = data.domain.coordinate.longitude;
-    let height = data.domain.height;
-
-    // var points = scene.primitives.add(new Cesium.PointPrimitiveCollection());
-    // points.add({
-    //     position: new Cesium.Cartesian3.fromDegrees(lon, lat, height),
-    //     color: Cesium.Color.RED
-    // });
-
-    // console.log(points);
-
-    viewer.entities.add({
-        position: Cesium.Cartesian3.fromDegrees(lon, lat, height),
-        point: {
-            color: Cesium.Color.RED,
-            pixelSize: 10,
-            outlineColor: Cesium.Color.WHITE,
-            outlineWidth: 1,
-            id: 'uniqueId'
-        }
-    });
-
-    var entity = viewer.entities.getOrCreateEntity('uniqueId');
-
-    // for (let i = 0; i < viewer.entities._entities._array.length; i++) {
-    //     for (let j = 0; j < data.length; j++) {
-    //         viewer.entities._entities._array[i]._id = data[j].id;
-    //     }
-    //     // if (viewer.entities._entities._array[i]._id == data[j].id) {
-    //     //     viewer.entities.removeById(viewer.entities._entities._array[i]._id)
-    //     // }
-    // }
+    let height = Math.round(data.domain.height);
+    let id = "uniqueid_" + data.id;
+    let oldEntity = viewer.entities.getById(id);
+    if (oldEntity === undefined) {
+        viewer.entities.add({
+            id: id,
+            position: Cesium.Cartesian3.fromDegrees(lon, lat, height),
+            point: {
+                color: Cesium.Color.RED,
+                pixelSize: 10,
+                outlineColor: Cesium.Color.WHITE,
+                outlineWidth: 1
+            },
+            label: {
+                text: height + ' m',
+                font: '16px sans-serif',
+                style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                outlineWidth: 3,
+                verticalOrigin: Cesium.VerticalOrigin.TOP,
+                pixelOffset: new Cesium.Cartesian2(0, 10)
+            }
+        });
+    } else {
+        oldEntity.position = Cesium.Cartesian3.fromDegrees(lon, lat, height);
+    }
 }
-//console.log(viewer.entities);
-//console.log(viewer.entities._entities._array);
 
 function makeSensor(data) {
     let lat = data.domain.coordinate.latitude;
     let lon = data.domain.coordinate.longitude;
+
     viewer.entities.add({
+        name: "sensor",
         position: Cesium.Cartesian3.fromDegrees(lon, lat, 80.0),
         point: {
             color: Cesium.Color.BLUE,
-            pixelSize: 15,
+            pixelSize: 20
         }
-    })
+    });
+}
+
+function removeMarker(data) {
+    viewer.entities.values.forEach((entity) => {
+        let found = false;
+
+        data.forEach(drone => {
+            if (entity.id == "uniqueid" + drone.id) {
+                found = true;
+            }
+        });
+
+        if (!found && entity.name !== "sensor") {
+            viewer.entities.remove(e);
+        }
+    });
 }
 
 setInterval(() => {
     getMarkerData();
-}, 3000);
-
-
+}, 100);
 getSensorData();
