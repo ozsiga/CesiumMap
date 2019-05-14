@@ -6,15 +6,15 @@ const cameraPos = new Cesium.Cartesian3(0.0, 0.0, 2000);
 viewer.camera.lookAt(center, cameraPos);
 viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
 
-var scene = viewer.scene;
+// var scene = viewer.scene;
 
-var modelMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(
-    Cesium.Cartesian3.fromDegrees(17.60571, 46.98657, 0.0));
-var model = scene.primitives.add(Cesium.Model.fromGltf({
-    url: './assets/tali3.glb',
-    modelMatrix: modelMatrix,
-    scale: 63.3,
-}));
+// var modelMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(
+//     Cesium.Cartesian3.fromDegrees(17.60571, 46.98657, 0.0));
+// var model = scene.primitives.add(Cesium.Model.fromGltf({
+//     url: './assets/tali3.glb',
+//     modelMatrix: modelMatrix,
+//     scale: 63.3,
+// }));
 
 function getMarkerData() {
     const url = "http://192.168.8.149:8080/UAVFusionPOC/rest/fusion/detection/all"; //url of service
@@ -44,23 +44,39 @@ function makeMarker(data) {
     let lat = data.domain.coordinate.latitude;
     let lon = data.domain.coordinate.longitude;
     let height = data.domain.height;
+
+    // var points = scene.primitives.add(new Cesium.PointPrimitiveCollection());
+    // points.add({
+    //     position: new Cesium.Cartesian3.fromDegrees(lon, lat, height),
+    //     color: Cesium.Color.RED
+    // });
+
+    // console.log(points);
+
     viewer.entities.add({
         position: Cesium.Cartesian3.fromDegrees(lon, lat, height),
         point: {
             color: Cesium.Color.RED,
-            pixelSize: 10
-        },
-    })
-    for (let i = 0; i < viewer.entities._entities._array.length; i++) {
-        viewer.entities._entities._array[i]._id = data.id
-        // if (viewer.entities._entities._array[i]._id == data.id) {
-        //     viewer.entities.remove(viewer.entities._entities._array[i])
-        // }
-        // console.log(viewer.entities);
-    }
+            pixelSize: 10,
+            outlineColor: Cesium.Color.WHITE,
+            outlineWidth: 1,
+            id: 'uniqueId'
+        }
+    });
+
+    var entity = viewer.entities.getOrCreateEntity('uniqueId');
+
+    // for (let i = 0; i < viewer.entities._entities._array.length; i++) {
+    //     for (let j = 0; j < data.length; j++) {
+    //         viewer.entities._entities._array[i]._id = data[j].id;
+    //     }
+    //     // if (viewer.entities._entities._array[i]._id == data[j].id) {
+    //     //     viewer.entities.removeById(viewer.entities._entities._array[i]._id)
+    //     // }
+    // }
 }
 //console.log(viewer.entities);
-console.log(viewer.entities._entities._array);
+//console.log(viewer.entities._entities._array);
 
 function makeSensor(data) {
     let lat = data.domain.coordinate.latitude;
@@ -69,12 +85,14 @@ function makeSensor(data) {
         position: Cesium.Cartesian3.fromDegrees(lon, lat, 80.0),
         point: {
             color: Cesium.Color.BLUE,
-            pixelSize: 20
+            pixelSize: 15,
         }
     })
 }
 
 setInterval(() => {
     getMarkerData();
-}, 500);
+}, 3000);
+
+
 getSensorData();
