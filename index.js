@@ -96,7 +96,7 @@ function removeMarker(data) {
         });
 
         if (!found && entity.name !== "sensor") {
-            viewer.entities.remove(e);
+            viewer.entities.remove(entity);
         }
     });
 }
