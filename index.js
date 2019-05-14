@@ -22,9 +22,10 @@ function getMarkerData() {
     fetch(url)
         .then(res => res.json())
         .then(data => {
-            data.forEach(function (e) {
-                makeMarker(e);
-            });
+            removeMissingMarker(data)
+            for (let i = 0; i < data.length; i++) {
+                makeMarker(data[i])
+            }
         })
         .catch(err => console.log(err));
 }
@@ -34,34 +35,73 @@ function getSensorData() {
     fetch(url)
         .then(res => res.json())
         .then(data => {
+
             data.sensors.forEach(function (e) {
                 makeSensor(e);
             });
         })
         .catch(err => console.log(err));
 }
+viewer.entities.getById()
 
 function makeMarker(data) {
+    //console.log(data.id)
+
     let lat = data.domain.coordinate.latitude
     let lon = data.domain.coordinate.longitude
     let height = data.domain.height
-    viewer.entities.add({
-        position: Cesium.Cartesian3.fromDegrees(lon, lat, height),
-        point: {
-            color: Cesium.Color.RED,
-            pixelSize: 10
-        },
-    })
-    for (let i = 0; i < viewer.entities._entities._array.length; i++) {
-        viewer.entities._entities._array[i]._id = data.id
-        // if (viewer.entities._entities._array[i]._id == data.id) {
-        //     viewer.entities.remove(viewer.entities._entities._array[i])
-        // }
-        console.log(viewer.entities);
+    let id = "uniqueid_" + data.id;
+    let oldEntity = viewer.entities.getById(id);
+    if (oldEntity === undefined) {
+        //console.log(viewer.entities)
+        viewer.entities.add({
+            position: Cesium.Cartesian3.fromDegrees(lon, lat, height),
+            point: {
+                color: Cesium.Color.RED,
+                pixelSize: 10,
+            },
+            id: id
+        })
+
+    } else {
+        //console.log(data.id)
+        oldEntity.position = Cesium.Cartesian3.fromDegrees(lon, lat, height)
     }
+
+
+
+    // viewer.entities.add({
+    //     position: Cesium.Cartesian3.fromDegrees(lon, lat, height),
+    //     point: {
+    //         color: Cesium.Color.RED,
+    //         pixelSize: 10,
+    //     },
+    //     id: "uniqueid_" + data.id
+    //})
+    // for (let i = 0; i < viewer.entities._entities._array.length; i++) {
+    //     viewer.entities._entities._array[i]._id = data.id
+    //     console.log(viewer.entities._entities._array[0]._id);
+    // }
+
 }
-//console.log(viewer.entities);
-//console.log(viewer.entities._entities._array);
+
+function removeMissingMarker(data) {
+    viewer.entities.values.forEach(function (e) {
+        var found = false;
+        data.forEach(function (d) {
+            if (e.id == "uniqueid" + d.id) {
+                found = true;
+            }
+        })
+        if (!found && viewer.entities.values.name !== "sensor") {
+            viewer.entities.remove(e)
+        }
+    })
+
+
+}
+
+
 
 function makeSensor(data) {
     let lat = data.domain.coordinate.latitude
@@ -71,12 +111,12 @@ function makeSensor(data) {
         point: {
             color: Cesium.Color.BLUE,
             pixelSize: 20
-        }
+        },
+        name: "sensor"
     })
 }
 
 setInterval(() => {
-
     getMarkerData();
-}, 1000);
+}, 100);
 getSensorData();
