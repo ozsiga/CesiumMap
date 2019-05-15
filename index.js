@@ -1,20 +1,34 @@
 Cesium.Ion.defaultAccessToken =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmYjFmZWU0Ny03NDE4LTQyZDYtYTY4YS0zMTM2MjMxMTU1MTgiLCJpZCI6MTA1NzYsInNjb3BlcyI6WyJhc2wiLCJhc3IiLCJhc3ciLCJnYyJdLCJpYXQiOjE1NTY4ODMyNzZ9.aAZSMZ3_AQ_aTxUKC87VbAlJw_orNRMoUDZTVk-uRSE";
+
 let viewer = new Cesium.Viewer("cesiumContainer");
-const center = Cesium.Cartesian3.fromDegrees(17.600, 46.985, 40000.0);
+const center = new Cesium.Cartesian3.fromDegrees(17.605, 46.985, 4000.0);
 const cameraPos = new Cesium.Cartesian3(0.0, 0.0, 2000);
 viewer.camera.lookAt(center, cameraPos);
 viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
 
+let homeCameraView = {
+    destination: center
+};
+
+// Override the default home button
+viewer.homeButton.viewModel.command.beforeExecute.addEventListener((e) => {
+    e.cancel = true;
+    viewer.scene.camera.flyTo(homeCameraView);
+});
+
 let scene = viewer.scene;
 
-let modelMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(
-    Cesium.Cartesian3.fromDegrees(17.60571, 46.98657, 0.0));
-let model = scene.primitives.add(Cesium.Model.fromGltf({
-    url: './assets/tali3.glb',
-    modelMatrix: modelMatrix,
-    scale: 63.3,
-}));
+// Add sunlight to globe
+scene.globe.enableLighting = true;
+
+// let modelMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(
+//     Cesium.Cartesian3.fromDegrees(17.60571, 46.98657, 0.0));
+// let model = scene.primitives.add(Cesium.Model.fromGltf({
+//     url: './assets/tali3.glb',
+//     modelMatrix: modelMatrix,
+//     scale: 63.3,
+// }));
 
 function getMarkerData() {
     const url = "http://192.168.8.149:8080/UAVFusionPOC/rest/fusion/detection/all"; //url of service
@@ -22,9 +36,6 @@ function getMarkerData() {
         .then(res => res.json())
         .then(data => {
             removeMarker(data);
-            for (let i = 0; i < data.length; i++) {
-                makeMarker(data[i]);
-            }
             data.forEach(drone => makeMarker(drone));
         })
         .catch(err => console.log(err));
@@ -39,7 +50,6 @@ function getSensorData() {
         })
         .catch(err => console.log(err));
 }
-viewer.entities.getById();
 
 function makeMarker(data) {
     let lat = data.domain.coordinate.latitude;
